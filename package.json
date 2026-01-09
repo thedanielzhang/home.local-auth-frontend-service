@@ -1,0 +1,19 @@
+{
+  "name": "template-fe",
+  "version": "1.0.0",
+  "dependencies": {
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "parcel": "^2.13.3",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "dev": "parcel src/index.html",
+    "build": "parcel build src/index.html --dist-dir dist",
+    "start": "npm run build && npx serve -s dist"
+  }
+}
