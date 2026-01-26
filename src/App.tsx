@@ -1,21 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
-
-const API_URL = process.env.API_URL || 'http://localhost:8000';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { BusinessSignupPage } from './pages/BusinessSignupPage';
+import { ConfirmationPage } from './pages/ConfirmationPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 
 function App() {
-  const [message, setMessage] = useState<string>('Loading...');
-
-  useEffect(() => {
-    fetch(`${API_URL}/`)
-      .then(res => res.json())
-      .then(data => setMessage(data.message))
-      .catch(() => setMessage('Failed to connect to API'));
-  }, []);
-
   return (
     <div className="app">
-      <h1>{message}</h1>
+      <header className="app-header">
+        <a href="/" className="logo">
+          <span className="logo-text">Home.Local</span>
+        </a>
+      </header>
+      <main className="app-main">
+        <Routes>
+          <Route path="/" element={<Navigate to="/business/signup" replace />} />
+          <Route path="/business/signup" element={<BusinessSignupPage />} />
+          <Route path="/business/confirmation" element={<ConfirmationPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </main>
+      <footer className="app-footer">
+        <p>&copy; {new Date().getFullYear()} Home.Local. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
