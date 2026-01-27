@@ -8,7 +8,7 @@ import { authApi, LoginRequest } from '../services/authApi';
 import { useOAuthFlow } from '../hooks/useOAuthFlow';
 
 export function LoginPage() {
-  const { buildUrl, redirectAfterAuth } = useOAuthFlow();
+  const { returnTo, buildUrl, redirectAfterAuth } = useOAuthFlow();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,14 +17,12 @@ export function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: (data: LoginRequest) => authApi.login(data),
     onSuccess: () => {
-      // Login successful - session cookie is set by auth-service
-      // Redirect back to OAuth flow or default destination
-      console.log('Login successful!');
-      console.log('Current URL:', window.location.href);
+      // Temporary debug - will show alert box
+      alert(`Login success! returnTo = ${returnTo}`);
       redirectAfterAuth();
     },
     onError: (err: any) => {
-      // Extract error message from response
+      alert(`Login error: ${err.message}`);
       const message =
         err.response?.data?.message ||
         err.response?.data?.detail ||

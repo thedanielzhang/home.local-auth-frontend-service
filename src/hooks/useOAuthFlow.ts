@@ -34,15 +34,19 @@ export function useOAuthFlow() {
    * Goes to returnTo URL if present, otherwise to a default page.
    */
   const redirectAfterAuth = (): void => {
-    console.log('redirectAfterAuth called, returnTo:', returnTo);
-    if (returnTo) {
+    // Read fresh from URL instead of using potentially stale captured value
+    const params = new URLSearchParams(window.location.search);
+    const freshReturnTo = params.get('returnTo');
+
+    console.log('redirectAfterAuth - freshReturnTo:', freshReturnTo);
+    console.log('redirectAfterAuth - hook returnTo:', returnTo);
+
+    if (freshReturnTo) {
       // Return to the OAuth authorize URL to continue the flow
-      console.log('Redirecting to:', returnTo);
-      window.location.href = returnTo;
+      window.location.href = freshReturnTo;
     } else {
       // No OAuth flow - redirect to a default location
       // This shouldn't happen normally in OAuth flow
-      console.log('No returnTo, redirecting to /');
       window.location.href = '/';
     }
   };
