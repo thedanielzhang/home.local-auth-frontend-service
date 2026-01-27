@@ -19,6 +19,8 @@ export function LoginPage() {
     onSuccess: () => {
       // Login successful - session cookie is set by auth-service
       // Redirect back to OAuth flow or default destination
+      console.log('Login successful!');
+      console.log('Current URL:', window.location.href);
       redirectAfterAuth();
     },
     onError: (err: any) => {
