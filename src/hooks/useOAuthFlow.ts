@@ -38,15 +38,9 @@ export function useOAuthFlow() {
     const params = new URLSearchParams(window.location.search);
     const freshReturnTo = params.get('returnTo');
 
-    console.log('redirectAfterAuth - freshReturnTo:', freshReturnTo);
-    console.log('redirectAfterAuth - hook returnTo:', returnTo);
-
     if (freshReturnTo) {
-      // Return to the OAuth authorize URL to continue the flow
       window.location.href = freshReturnTo;
     } else {
-      // No OAuth flow - redirect to a default location
-      // This shouldn't happen normally in OAuth flow
       window.location.href = '/';
     }
   };

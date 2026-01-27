@@ -17,14 +17,11 @@ export function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: (data: LoginRequest) => authApi.login(data),
     onSuccess: () => {
-      // Get returnTo directly from URL params - bypass the hook
+      // Get returnTo directly from URL params
       const params = new URLSearchParams(window.location.search);
       const returnToUrl = params.get('returnTo');
 
-      // Debug alerts
-      alert('Login success! About to redirect to: ' + returnToUrl);
-
-      // Redirect directly using replace() instead of href
+      // Redirect to OAuth flow or default
       if (returnToUrl) {
         window.location.replace(returnToUrl);
       } else {
