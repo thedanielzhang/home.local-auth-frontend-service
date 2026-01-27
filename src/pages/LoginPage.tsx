@@ -8,7 +8,7 @@ import { authApi, LoginRequest } from '../services/authApi';
 import { useOAuthFlow } from '../hooks/useOAuthFlow';
 
 export function LoginPage() {
-  const { returnTo, buildUrl, redirectAfterAuth } = useOAuthFlow();
+  const { buildUrl } = useOAuthFlow();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,12 +17,21 @@ export function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: (data: LoginRequest) => authApi.login(data),
     onSuccess: () => {
-      // Temporary debug - will show alert box
-      alert(`Login success! returnTo = ${returnTo}`);
-      redirectAfterAuth();
+      // Get returnTo directly from URL params - bypass the hook
+      const params = new URLSearchParams(window.location.search);
+      const returnToUrl = params.get('returnTo');
+
+      // Debug alerts
+      alert('Login success! About to redirect to: ' + returnToUrl);
+
+      // Redirect directly using replace() instead of href
+      if (returnToUrl) {
+        window.location.replace(returnToUrl);
+      } else {
+        window.location.replace('/');
+      }
     },
     onError: (err: any) => {
-      alert(`Login error: ${err.message}`);
       const message =
         err.response?.data?.message ||
         err.response?.data?.detail ||
