@@ -67,3 +67,26 @@ export async function getBusinessStatus(userId: string): Promise<BusinessStatus>
   const response = await apiClient.get<BusinessStatus>(`/business/status/${userId}`);
   return response.data;
 }
+
+export interface ValidateReturnUrlResponse {
+  valid: boolean;
+  reason?: string;
+}
+
+/**
+ * Validate a return URL against the auth service allowlist.
+ * Used to prevent open redirect vulnerabilities in the business signup flow.
+ */
+export async function validateReturnUrl(returnUrl: string): Promise<ValidateReturnUrlResponse> {
+  try {
+    const response = await apiClient.get<ValidateReturnUrlResponse>(
+      '/business/validate-return-url',
+      { params: { return_url: returnUrl } }
+    );
+    return response.data;
+  } catch (error) {
+    console.warn('Failed to validate return URL:', error);
+    // Fail closed - if validation fails, don't allow redirect
+    return { valid: false, reason: 'Validation service unavailable' };
+  }
+}

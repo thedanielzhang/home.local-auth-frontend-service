@@ -382,6 +382,27 @@ body {
   margin-top: 24px;
 }
 
+.confirmation-redirect-status {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.confirmation-redirect-status .text-muted {
+  color: #666;
+  font-size: 14px;
+}
+
+.redirect-countdown {
+  font-size: 18px;
+  color: #0066cc;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.confirmation-redirect-status .btn {
+  margin-top: 8px;
+}
+
 /* Not found page */
 .not-found-card {
   max-width: 400px;
