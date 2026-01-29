@@ -47,7 +47,32 @@ export function BusinessRegistrationForm() {
       });
     },
     onError: (error: Error) => {
-      setErrors({ _form: error.message });
+      const detail = error.message || '';
+
+      // Provide user-friendly error messages for common backend errors
+      if (detail.includes('Business name must be')) {
+        setErrors({ business_name: detail });
+      } else if (detail.includes('Invalid phone')) {
+        setErrors({
+          business_phone:
+            'Please enter a valid phone number with at least 10 digits',
+        });
+      } else if (
+        detail.includes('email') &&
+        detail.toLowerCase().includes('already')
+      ) {
+        setErrors({
+          contact_email: 'This email is already registered.',
+        });
+      } else if (detail.includes('email')) {
+        setErrors({ contact_email: 'Please enter a valid email address' });
+      } else {
+        setErrors({
+          _form:
+            detail ||
+            'Registration failed. Please check your information and try again.',
+        });
+      }
     },
   });
 
@@ -105,15 +130,29 @@ export function BusinessRegistrationForm() {
       <form onSubmit={handleSubmit}>
         {currentStep === 'business' && (
           <div className="form-step">
-            <Input
-              label="Business Name"
-              name="business_name"
-              value={formData.business_name || ''}
-              onChange={handleChange('business_name')}
-              error={errors.business_name}
-              placeholder="e.g., Joe's Coffee Shop"
-              required
-            />
+            <div className="form-field-with-counter">
+              <Input
+                label="Business Name"
+                name="business_name"
+                value={formData.business_name || ''}
+                onChange={handleChange('business_name')}
+                error={errors.business_name}
+                placeholder="e.g., Joe's Coffee Shop"
+                maxLength={255}
+                required
+              />
+              {formData.business_name && formData.business_name.length > 200 && (
+                <p
+                  className={`char-counter ${
+                    formData.business_name.length > 240
+                      ? 'char-counter--warning'
+                      : ''
+                  }`}
+                >
+                  {255 - formData.business_name.length} characters remaining
+                </p>
+              )}
+            </div>
             <Input
               label="Street Address"
               name="business_address_street"

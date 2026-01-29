@@ -120,7 +120,7 @@ export function ConsentPage() {
                 </p>
               )}
               <p className="consent-app__request">
-                wants to access your Home.Local account
+                wants to access your Iriai account
               </p>
             </div>
 

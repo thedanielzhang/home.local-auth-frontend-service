@@ -95,11 +95,25 @@ export function RegisterPage() {
       redirectAfterAuth();
     },
     onError: (err: any) => {
-      const message =
+      const detail =
         err.response?.data?.message ||
         err.response?.data?.detail ||
-        'Registration failed. Please try again.';
-      setErrors({ general: message });
+        '';
+
+      // Provide user-friendly error messages for common backend errors
+      if (detail.includes('not in supported region') || detail.includes('Supported:')) {
+        setErrors({
+          city: "We're currently only available in San Francisco, New York City, and Los Angeles metro areas. We're expanding soon!",
+        });
+      } else if (detail.includes('Email already registered')) {
+        setErrors({
+          email: 'This email is already registered. Try signing in instead.',
+        });
+      } else {
+        setErrors({
+          general: detail || 'Registration failed. Please try again.',
+        });
+      }
     },
   });
 
@@ -134,7 +148,7 @@ export function RegisterPage() {
     <div className="page page--register">
       <div className="page__container">
         <Card className="register-card">
-          <h1 className="register-form__title">Create your Home.Local account</h1>
+          <h1 className="register-form__title">Create your Iriai account</h1>
 
           <form onSubmit={handleSubmit} className="register-form">
             {errors.general && (
@@ -203,6 +217,25 @@ export function RegisterPage() {
                 Your address is used to determine your neighborhood. It will not
                 be shared without your permission.
               </p>
+
+              {/* Region availability notice */}
+              <div className="region-notice">
+                <svg
+                  className="region-notice__icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 16v-4M12 8h.01" />
+                </svg>
+                <p className="region-notice__text">
+                  <strong>Currently available in:</strong> San Francisco Bay
+                  Area, New York City Metro, and Los Angeles Metro. We're
+                  expanding to more cities soon!
+                </p>
+              </div>
 
               <Input
                 label="Street Address"

@@ -55,7 +55,7 @@ export function LoginPage() {
       <div className="page__container">
         <Card className="login-card">
           <div className="login-form">
-            <h1 className="login-form__title">Sign in to Home.Local</h1>
+            <h1 className="login-form__title">Sign in to Iriai</h1>
 
             <form onSubmit={handleSubmit} className="login-form__form">
               {error && <div className="login-form__error">{error}</div>}

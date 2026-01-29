@@ -98,10 +98,10 @@ export function PendingApprovalPage() {
             <p>
               Questions? Contact{' '}
               <a
-                href="mailto:support@homelocal.com"
+                href="mailto:support@iriai.com"
                 className="pending-support__link"
               >
-                support@homelocal.com
+                support@iriai.com
               </a>
             </p>
           </div>

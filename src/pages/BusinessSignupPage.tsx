@@ -7,7 +7,7 @@ export function BusinessSignupPage() {
         <div className="page__intro">
           <h1>Register Your Business</h1>
           <p>
-            Join Home.Local to connect your business with apps serving your local community.
+            Join Iriai to connect your business with apps serving your local community.
             After registration, your account will be reviewed and approved within 1-2 business days.
           </p>
         </div>

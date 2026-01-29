@@ -168,7 +168,7 @@ export function ConfirmationPage() {
           <div className="confirmation-icon">&#x2713;</div>
           <h1>Application Submitted!</h1>
           <p className="confirmation-lead">
-            Thank you for registering <strong>{businessName}</strong> with Home.Local.
+            Thank you for registering <strong>{businessName}</strong> with Iriai.
           </p>
 
           <div className="confirmation-steps">
@@ -181,7 +181,7 @@ export function ConfirmationPage() {
                 <strong>Notification:</strong> You'll receive an email when your account is approved
               </li>
               <li>
-                <strong>Get Started:</strong> Once approved, you can sign in to any Home.Local app
+                <strong>Get Started:</strong> Once approved, you can sign in to any Iriai app
               </li>
             </ol>
           </div>

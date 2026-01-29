@@ -1,7 +1,7 @@
 {
   "name": "auth-frontend-service",
   "version": "0.1.0",
-  "description": "Home.Local authentication service frontend",
+  "description": "Iriai authentication service frontend",
   "dependencies": {
     "@tanstack/react-query": "^5.62.0",
     "@types/react": "^19.0.10",

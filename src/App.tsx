@@ -17,7 +17,7 @@ function App() {
     <div className="app">
       <header className="app-header">
         <a href="/" className="logo">
-          <span className="logo-text">Home.Local</span>
+          <span className="logo-text">Iriai</span>
         </a>
       </header>
       <main className="app-main">
@@ -43,7 +43,7 @@ function App() {
         </Routes>
       </main>
       <footer className="app-footer">
-        <p>&copy; {new Date().getFullYear()} Home.Local. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Iriai. All rights reserved.</p>
       </footer>
     </div>
   );

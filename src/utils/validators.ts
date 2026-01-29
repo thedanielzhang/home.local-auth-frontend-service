@@ -2,9 +2,49 @@ export interface ValidationErrors {
   [key: string]: string | undefined;
 }
 
+/**
+ * Supported metro regions for user registration.
+ * Users must have an address that geocodes to one of these areas.
+ */
+export const SUPPORTED_REGIONS = [
+  { code: 'sf', name: 'San Francisco Bay Area' },
+  { code: 'nyc', name: 'New York City Metro' },
+  { code: 'la', name: 'Los Angeles Metro' },
+] as const;
+
+export const SUPPORTED_REGIONS_TEXT =
+  'San Francisco, New York City, and Los Angeles';
+
 export function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
+}
+
+/**
+ * Enhanced email validation that more closely matches backend RFC 5322 validation.
+ * This catches more edge cases than the simple regex.
+ */
+export function isValidEmailStrict(email: string): boolean {
+  if (!email) return false;
+
+  // Basic format check
+  const basicRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!basicRegex.test(email)) return false;
+
+  // Additional checks
+  const [local, domain] = email.split('@');
+
+  // Local part checks
+  if (local.length > 64) return false;
+  if (local.startsWith('.') || local.endsWith('.')) return false;
+  if (local.includes('..')) return false;
+
+  // Domain checks
+  if (domain.length > 253) return false;
+  if (domain.startsWith('-') || domain.endsWith('-')) return false;
+  if (!/^[a-zA-Z0-9.-]+$/.test(domain)) return false;
+
+  return true;
 }
 
 export function isValidPhone(phone: string): boolean {
@@ -44,8 +84,11 @@ export function validateBusinessForm(
   const errors: ValidationErrors = {};
 
   if (step === 'business') {
+    // Business name: 2-255 chars (matching backend validation)
     if (!data.business_name || !isMinLength(data.business_name, 2)) {
       errors.business_name = 'Business name must be at least 2 characters';
+    } else if (data.business_name.length > 255) {
+      errors.business_name = 'Business name must be less than 255 characters';
     }
     if (!data.business_address_street || !isNotEmpty(data.business_address_street)) {
       errors.business_address_street = 'Street address is required';
