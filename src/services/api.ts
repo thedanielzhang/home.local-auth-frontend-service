@@ -1,9 +1,8 @@
 import axios, { AxiosError } from 'axios';
-
-const API_BASE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:8000';
+import { AUTH_SERVICE_URL } from '../config/env';
 
 const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: AUTH_SERVICE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -3,8 +3,7 @@ import { useLocation, Navigate } from 'react-router-dom';
 import { Card, Button } from '../components/ui';
 import { validateReturnUrl } from '../services/api';
 import { getClientForDomain } from '../config/clients';
-
-const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:8000';
+import { AUTH_SERVICE_URL } from '../config/env';
 
 /**
  * Build an OAuth authorize URL that will redirect the user through the OAuth flow.
