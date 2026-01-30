@@ -10,16 +10,14 @@ import { AUTH_SERVICE_URL } from '../config/env';
  * Since the user now has a session cookie (set during registration), OAuth will
  * auto-approve for first-party clients and redirect them with tokens.
  *
+ * The state parameter now only contains type identifier and timestamp for validation.
+ * The welcome modal is triggered by the show_welcome claim in the JWT token (server-side flag).
+ *
  * @param returnUrl - The final destination URL after OAuth completes
  * @param clientId - The OAuth client ID for the destination app
- * @param registered - Registration status to pass through OAuth state
  * @returns The OAuth authorize URL
  */
-function buildOAuthAuthorizeUrl(
-  returnUrl: string,
-  clientId: string,
-  registered: string
-): string {
+function buildOAuthAuthorizeUrl(returnUrl: string, clientId: string): string {
   const url = new URL(`${AUTH_SERVICE_URL}/oauth/authorize`);
   url.searchParams.set('client_id', clientId);
 
@@ -30,14 +28,14 @@ function buildOAuthAuthorizeUrl(
   url.searchParams.set('response_type', 'code');
   url.searchParams.set('scope', 'openid profile');
 
-  // Encode the final destination and registration status in the state parameter
-  // The callback page will decode this and redirect appropriately
-  const stateData = {
+  // Simplified state: just identifies this as a registration flow with timestamp for expiry
+  // The welcome modal is now triggered by the show_welcome claim in the JWT token
+  const registrationState = {
+    type: 'registration',
     returnUrl,
-    registered,
-    welcome: 'true',
+    ts: Date.now(),
   };
-  url.searchParams.set('state', btoa(JSON.stringify(stateData)));
+  url.searchParams.set('state', btoa(JSON.stringify(registrationState)));
 
   return url.toString();
 }
@@ -97,11 +95,8 @@ export function ConfirmationPage() {
         if (clientConfig) {
           // Build OAuth authorize URL - the session cookie (set during registration)
           // will allow OAuth to auto-approve for first-party clients
-          const redirectUrl = buildOAuthAuthorizeUrl(
-            returnUrl,
-            clientConfig.clientId,
-            isApproved ? 'approved' : 'pending'
-          );
+          // The welcome modal is triggered by the show_welcome claim in the JWT token
+          const redirectUrl = buildOAuthAuthorizeUrl(returnUrl, clientConfig.clientId);
 
           setRedirectState({
             status: 'counting_down',
@@ -127,7 +122,7 @@ export function ConfirmationPage() {
     return () => {
       mounted = false;
     };
-  }, [returnUrl, isApproved]);
+  }, [returnUrl]);
 
   // Countdown timer
   useEffect(() => {
