@@ -7,6 +7,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Allow cookies to be set/sent for session management
 });
 
 export interface BusinessRegistrationData {
@@ -22,12 +23,14 @@ export interface BusinessRegistrationData {
   contact_email: string;
   contact_role?: string;
   password: string;
+  bypass_code?: string;
 }
 
 export interface BusinessRegistrationResponse {
   user_id: string;
   business_name: string;
-  status: string;
+  account_type: string;
+  status: 'pending_approval' | 'approved';
   message: string;
 }
 

@@ -2,20 +2,61 @@ import { useEffect, useState, useCallback } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
 import { Card, Button } from '../components/ui';
 import { validateReturnUrl } from '../services/api';
+import { getClientForDomain } from '../config/clients';
+
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:8000';
+
+/**
+ * Build an OAuth authorize URL that will redirect the user through the OAuth flow.
+ * Since the user now has a session cookie (set during registration), OAuth will
+ * auto-approve for first-party clients and redirect them with tokens.
+ *
+ * @param returnUrl - The final destination URL after OAuth completes
+ * @param clientId - The OAuth client ID for the destination app
+ * @param registered - Registration status to pass through OAuth state
+ * @returns The OAuth authorize URL
+ */
+function buildOAuthAuthorizeUrl(
+  returnUrl: string,
+  clientId: string,
+  registered: string
+): string {
+  const url = new URL(`${AUTH_SERVICE_URL}/oauth/authorize`);
+  url.searchParams.set('client_id', clientId);
+
+  // Determine the callback URL based on the return URL's origin
+  const returnOrigin = new URL(returnUrl).origin;
+  url.searchParams.set('redirect_uri', `${returnOrigin}/auth/callback`);
+
+  url.searchParams.set('response_type', 'code');
+  url.searchParams.set('scope', 'openid profile');
+
+  // Encode the final destination and registration status in the state parameter
+  // The callback page will decode this and redirect appropriately
+  const stateData = {
+    returnUrl,
+    registered,
+    welcome: 'true',
+  };
+  url.searchParams.set('state', btoa(JSON.stringify(stateData)));
+
+  return url.toString();
+}
 
 interface LocationState {
   userId: string;
   businessName: string;
+  status: 'pending_approval' | 'approved';
   returnUrl?: string;
 }
 
 type RedirectState =
-  | { status: 'idle' }  // Initial state, or no returnUrl provided
+  | { status: 'idle' } // Initial state, or no returnUrl provided
   | { status: 'validating' }
-  | { status: 'counting_down'; secondsRemaining: number; validatedUrl: string }
-  | { status: 'redirecting'; validatedUrl: string }
-  | { status: 'manual'; validatedUrl: string }  // User cancelled, show button
-  | { status: 'invalid' };  // URL failed validation, no button shown
+  | { status: 'counting_down'; secondsRemaining: number; redirectUrl: string; appName: string }
+  | { status: 'redirecting'; redirectUrl: string }
+  | { status: 'manual'; redirectUrl: string; appName: string } // User cancelled, show button
+  | { status: 'invalid' }; // URL failed validation, no button shown
 
 const COUNTDOWN_SECONDS = 3;
 
@@ -29,7 +70,8 @@ export function ConfirmationPage() {
     return <Navigate to="/business/signup" replace />;
   }
 
-  const { businessName, returnUrl } = state;
+  const { businessName, status: registrationStatus, returnUrl } = state;
+  const isApproved = registrationStatus === 'approved';
 
   // Validate URL and start countdown on mount
   useEffect(() => {
@@ -50,12 +92,30 @@ export function ConfirmationPage() {
       if (!mounted) return;
 
       if (result.valid) {
-        // Start countdown
-        setRedirectState({
-          status: 'counting_down',
-          secondsRemaining: COUNTDOWN_SECONDS,
-          validatedUrl: returnUrl
-        });
+        // Get the client config for this return URL
+        const clientConfig = getClientForDomain(new URL(returnUrl).hostname);
+
+        if (clientConfig) {
+          // Build OAuth authorize URL - the session cookie (set during registration)
+          // will allow OAuth to auto-approve for first-party clients
+          const redirectUrl = buildOAuthAuthorizeUrl(
+            returnUrl,
+            clientConfig.clientId,
+            isApproved ? 'approved' : 'pending'
+          );
+
+          setRedirectState({
+            status: 'counting_down',
+            secondsRemaining: COUNTDOWN_SECONDS,
+            redirectUrl: redirectUrl,
+            appName: clientConfig.name,
+          });
+        } else {
+          // Unknown client - don't redirect through OAuth
+          console.log('No client config found for return URL:', returnUrl);
+          setRedirectState({ status: 'invalid' });
+          return;
+        }
       } else {
         // URL is not in allowlist - don't show redirect option
         console.log('Return URL validation failed:', result.reason);
@@ -68,7 +128,7 @@ export function ConfirmationPage() {
     return () => {
       mounted = false;
     };
-  }, [returnUrl]);
+  }, [returnUrl, isApproved]);
 
   // Countdown timer
   useEffect(() => {
@@ -80,7 +140,7 @@ export function ConfirmationPage() {
 
         if (prev.secondsRemaining <= 1) {
           // Time's up - redirect
-          return { status: 'redirecting', validatedUrl: prev.validatedUrl };
+          return { status: 'redirecting', redirectUrl: prev.redirectUrl };
         }
 
         return { ...prev, secondsRemaining: prev.secondsRemaining - 1 };
@@ -93,7 +153,7 @@ export function ConfirmationPage() {
   // Perform redirect
   useEffect(() => {
     if (redirectState.status === 'redirecting') {
-      window.location.href = redirectState.validatedUrl;
+      window.location.href = redirectState.redirectUrl;
     }
   }, [redirectState]);
 
@@ -102,7 +162,8 @@ export function ConfirmationPage() {
     if (redirectState.status === 'counting_down') {
       setRedirectState({
         status: 'manual',
-        validatedUrl: redirectState.validatedUrl
+        redirectUrl: redirectState.redirectUrl,
+        appName: redirectState.appName,
       });
     }
   }, [redirectState]);
@@ -126,12 +187,9 @@ export function ConfirmationPage() {
         return (
           <div className="confirmation-redirect-status">
             <p className="redirect-countdown">
-              Redirecting in {redirectState.secondsRemaining}...
+              Redirecting to {redirectState.appName} in {redirectState.secondsRemaining}...
             </p>
-            <Button
-              variant="secondary"
-              onClick={cancelRedirect}
-            >
+            <Button variant="secondary" onClick={cancelRedirect}>
               Stay on this page
             </Button>
           </div>
@@ -145,19 +203,13 @@ export function ConfirmationPage() {
         );
 
       case 'manual':
-        // User cancelled - show manual button
-        try {
-          const hostname = new URL(redirectState.validatedUrl).hostname;
-          return (
-            <div className="confirmation-actions">
-              <a href={redirectState.validatedUrl} className="btn btn-primary">
-                Return to {hostname}
-              </a>
-            </div>
-          );
-        } catch {
-          return null;
-        }
+        return (
+          <div className="confirmation-actions">
+            <a href={redirectState.redirectUrl} className="btn btn-primary">
+              Continue to {redirectState.appName}
+            </a>
+          </div>
+        );
     }
   };
 
@@ -166,25 +218,38 @@ export function ConfirmationPage() {
       <div className="page__container">
         <Card className="confirmation-card">
           <div className="confirmation-icon">&#x2713;</div>
-          <h1>Application Submitted!</h1>
+          <h1>{isApproved ? 'Welcome to Iriai!' : 'Application Submitted!'}</h1>
           <p className="confirmation-lead">
             Thank you for registering <strong>{businessName}</strong> with Iriai.
           </p>
 
-          <div className="confirmation-steps">
-            <h2>What happens next?</h2>
-            <ol>
-              <li>
-                <strong>Review:</strong> Our team will review your application within 1-2 business days
-              </li>
-              <li>
-                <strong>Notification:</strong> You'll receive an email when your account is approved
-              </li>
-              <li>
-                <strong>Get Started:</strong> Once approved, you can sign in to any Iriai app
-              </li>
-            </ol>
-          </div>
+          {isApproved ? (
+            <div className="confirmation-steps">
+              <h2>You're all set!</h2>
+              <p>
+                Your business account has been approved. You can now sign in to any Iriai app and
+                start creating your directory listing.
+              </p>
+            </div>
+          ) : (
+            <div className="confirmation-steps">
+              <h2>What happens next?</h2>
+              <ol>
+                <li>
+                  <strong>Review:</strong> Our team will review your application within 1-2 business
+                  days
+                </li>
+                <li>
+                  <strong>Notification:</strong> You'll receive an email when your account is
+                  approved
+                </li>
+                <li>
+                  <strong>Get Started:</strong> In the meantime, you can create your directory
+                  listing
+                </li>
+              </ol>
+            </div>
+          )}
 
           <p className="confirmation-note">
             A confirmation email has been sent to your registered email address.

@@ -24,6 +24,7 @@ const STEP_DESCRIPTIONS: Record<FormStep, string> = {
 
 interface FormData extends Partial<BusinessRegistrationData> {
   password_confirm?: string;
+  bypass_code?: string;
 }
 
 export function BusinessRegistrationForm() {
@@ -42,6 +43,7 @@ export function BusinessRegistrationForm() {
         state: {
           userId: data.user_id,
           businessName: data.business_name,
+          status: data.status,
           returnUrl,
         },
       });
@@ -113,7 +115,11 @@ export function BusinessRegistrationForm() {
     e.preventDefault();
     if (validateCurrentStep()) {
       // Remove password_confirm before sending to API
-      const { password_confirm, ...submitData } = formData;
+      const { password_confirm, bypass_code, ...submitData } = formData;
+      // Include bypass_code if provided (uppercase it)
+      if (bypass_code && bypass_code.trim()) {
+        (submitData as BusinessRegistrationData).bypass_code = bypass_code.trim().toUpperCase();
+      }
       mutation.mutate(submitData as BusinessRegistrationData);
     }
   };
@@ -269,6 +275,24 @@ export function BusinessRegistrationForm() {
               error={errors.password_confirm}
               required
             />
+
+            <div className="form-divider">
+              <span>Optional</span>
+            </div>
+
+            <Input
+              label="Approval Code"
+              name="bypass_code"
+              type="text"
+              value={formData.bypass_code || ''}
+              onChange={handleChange('bypass_code')}
+              error={errors.bypass_code}
+              placeholder="e.g., CASTRO2024"
+              maxLength={50}
+            />
+            <p className="form-hint">
+              Have an approval code from an Iriai representative? Enter it here for instant approval.
+            </p>
           </div>
         )}
 
