@@ -236,6 +236,8 @@ body {
 }
 
 .form-input {
+  width: 100%;
+  min-width: 0;
   padding: 10px 12px;
   font-size: 16px;
   border: 1px solid #ccc;
@@ -261,6 +263,10 @@ body {
 .form-row {
   display: grid;
   gap: 16px;
+}
+
+.form-row > * {
+  min-width: 0;
 }
 
 .form-row--three {
@@ -595,6 +601,16 @@ a:not(.btn):not(.logo):hover {
 .form-input:focus-visible {
   outline: 2px solid #6229ee;
   outline-offset: 2px;
+}
+
+/* Button styled as a link */
+.btn-link {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+    color: inherit;
 }
 
 /* Screen reader only utility */
@@ -1381,6 +1397,410 @@ a:not(.btn):not(.logo):hover {
   .btn-primary {
     border: 2px solid var(--primary-dark);
   }
+}
+
+/* ============================================================================
+   Interest Form Modal Styles (copied from deploy-console MarketingPage.css)
+   ============================================================================ */
+
+.interest-form-label .required {
+    color: var(--error, #dc2626);
+    margin-left: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Interest Form Modal
+   -------------------------------------------------------------------------- */
+.interest-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(22, 25, 38, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+  animation: fadeIn 200ms ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.interest-modal {
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100vh - 40px);
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.interest-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.interest-modal-title {
+  font-family: monospace;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.interest-modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.interest-modal-close:hover {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.interest-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* Form Styles */
+.interest-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.interest-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.interest-form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.interest-form-input {
+  padding: 12px 16px;
+  font-size: 1rem;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius);
+  background: white;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.interest-form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(98, 41, 238, 0.15);
+}
+
+.interest-form-input.error {
+  border-color: var(--error);
+}
+
+.interest-form-error {
+  font-size: 0.8125rem;
+  color: var(--error);
+}
+
+/* Interest Type Toggle */
+.interest-type-toggle {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: var(--background);
+  border-radius: var(--radius);
+}
+
+.interest-type-option {
+  flex: 1;
+  padding: 10px 12px;
+  font-family: monospace;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.interest-type-option.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Submit Button */
+.interest-form-submit {
+  margin-top: 8px;
+  padding: 14px 24px;
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.interest-form-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.interest-form-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Success State */
+.interest-success {
+  text-align: center;
+  padding: 40px 20px;
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.interest-success-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  animation: celebrateBounce 600ms ease-out;
+}
+
+@keyframes celebrateBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  75% { transform: scale(0.95); }
+}
+
+.interest-success-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+.interest-success-message {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Interest Modal - Mobile Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .interest-modal-overlay {
+    padding: 12px;
+    align-items: flex-end; /* Slide up from bottom on mobile */
+  }
+
+  .interest-modal {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .interest-modal-header {
+    padding: 16px 20px;
+  }
+
+  .interest-modal-title {
+    font-size: 1.125rem;
+  }
+
+  .interest-modal-body {
+    padding: 20px;
+  }
+
+  .interest-type-toggle {
+    flex-direction: column;
+  }
+
+  .interest-type-option {
+    padding: 12px;
+  }
+
+  .interest-form-input {
+    font-size: 16px; /* Prevents iOS zoom on input focus */
+  }
+}
+
+@media (max-width: 360px) {
+  .interest-modal-overlay {
+    padding: 8px;
+  }
+
+  .interest-modal-body {
+    padding: 16px;
+  }
+
+  .interest-form-submit {
+    padding: 12px 20px;
+    font-size: 0.9375rem;
+  }
+}
+
+/* ============================================================================
+   Forgot Password Page Styles
+   ============================================================================ */
+
+.page--forgot-password {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 200px);
+    padding: 2rem 1rem;
+}
+
+.page--forgot-password .page__container {
+    width: 100%;
+    max-width: 420px;
+}
+
+.forgot-password-card {
+    padding: 32px;
+}
+
+.forgot-password-form__title {
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 8px;
+    color: #333;
+}
+
+.forgot-password-form__description {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin: 0 0 24px;
+}
+
+.forgot-password-form__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.forgot-password-form__submit {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.forgot-password__back-link {
+    display: block;
+    text-align: center;
+    margin-top: 24px;
+    font-size: 14px;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.forgot-password__back-link:hover {
+    text-decoration: underline;
+}
+
+/* Success state */
+.forgot-password-success {
+    text-align: center;
+    padding: 16px 0;
+}
+
+.forgot-password-success__icon {
+    width: 64px;
+    height: 64px;
+    background: var(--success);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 24px;
+}
+
+.forgot-password-success__title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 16px;
+}
+
+.forgot-password-success__message {
+    font-size: 16px;
+    color: #374151;
+    margin: 0 0 12px;
+}
+
+.forgot-password-success__urgent {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.forgot-password-success__urgent a {
+    color: var(--primary);
+    font-weight: 500;
+}
+
+@media (max-width: 480px) {
+    .forgot-password-card {
+        padding: 24px;
+    }
+
+    .page--forgot-password {
+        padding: 1rem;
+    }
 }
 
 /* Print styles */

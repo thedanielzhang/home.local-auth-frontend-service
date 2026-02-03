@@ -6,6 +6,7 @@ import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { authApi, LoginRequest } from '../services/authApi';
 import { useOAuthFlow } from '../hooks/useOAuthFlow';
+import { InterestFormModal } from '../components/InterestFormModal';
 
 export function LoginPage() {
   const { buildUrl } = useOAuthFlow();
@@ -13,6 +14,7 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [showInterestModal, setShowInterestModal] = useState(false);
 
   const loginMutation = useMutation({
     mutationFn: (data: LoginRequest) => authApi.login(data),
@@ -116,20 +118,21 @@ export function LoginPage() {
             </div>
 
             <div className="login-form__links">
-              <Link to="#" className="login-form__link">
+              <Link to="/forgot-password" className="login-form__link">
                 Forgot password?
               </Link>
             </div>
 
             <div className="login-form__footer">
               <p>
-                Don't have an account?{' '}
-                <Link
-                  to={buildUrl('/register')}
-                  className="login-form__link--primary"
+                Interested?{' '}
+                <button
+                  type="button"
+                  onClick={() => setShowInterestModal(true)}
+                  className="btn-link login-form__link--primary"
                 >
-                  Sign up
-                </Link>
+                  Stay connected
+                </button>
               </p>
               <p>
                 Registering a business?{' '}
@@ -143,6 +146,12 @@ export function LoginPage() {
             </div>
           </div>
         </Card>
+
+        <InterestFormModal
+          isOpen={showInterestModal}
+          onClose={() => setShowInterestModal(false)}
+          sourceTab="auth-login"
+        />
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { ConsentPage } from './pages/ConsentPage';
 import { LogoutPage } from './pages/LogoutPage';
 import { PendingApprovalPage } from './pages/PendingApprovalPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/consent" element={<ConsentPage />} />
           <Route path="/logout" element={<LogoutPage />} />
           <Route path="/pending-approval" element={<PendingApprovalPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           {/* Existing Business Registration Routes */}
           <Route path="/business/signup" element={<BusinessSignupPage />} />
